@@ -1,0 +1,36 @@
+<Window x:Class="DemoPulse.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        Title="DemoPulse" Height="720" Width="1100"
+        WindowStyle="None" AllowsTransparency="False"
+        Background="#0B0D10" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="36"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Windows Titlebar -->
+        <Grid Grid.Row="0" Background="#08090C" MouseLeftButtonDown="Header_MouseDown">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,0,0">
+                <TextBlock Text="🎮 DEMOPULSE" Foreground="#E4AE39" FontWeight="Bold" FontSize="12"/>
+                <TextBlock Text="  CS2 Match &amp; Tactics Analyzer" Foreground="#94A3B8" FontSize="10" VerticalAlignment="Center" Margin="8,0,0,0"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <Button Content="&#xE921;" FontFamily="Segoe MDL2 Assets" Width="46" Background="Transparent" Foreground="#94A3B8" BorderThickness="0" Click="BtnMin_Click"/>
+                <Button Content="&#xE922;" FontFamily="Segoe MDL2 Assets" Width="46" Background="Transparent" Foreground="#94A3B8" BorderThickness="0" Click="BtnMax_Click"/>
+                <Button Content="&#xE8BB;" FontFamily="Segoe MDL2 Assets" Width="46" Background="Transparent" Foreground="#94A3B8" BorderThickness="0" Click="BtnClose_Click"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- WebView2 Canvas -->
+        <wv2:WebView2 Name="webView" Grid.Row="1"/>
+    </Grid>
+</Window>
