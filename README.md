@@ -1,6 +1,6 @@
 # CS2 Voice & Demo Manager 🎮🎧
 
-A zero-GUI, high-performance CLI utility for Counter-Strike 2. It parses `.dem` files instantly using WASM Rust bindings (`@laihoe/demoparser2`), calculates 32-bit signed voice bitmasks for team channels, and automatically configures a clean, ergonomic demo review layout in CS2.
+A zero-GUI, high-performance utility for Counter-Strike 2. It parses `.dem` files instantly using WASM Rust bindings (`@laihoe/demoparser2`), calculates 32-bit signed voice bitmasks for team channels, and automatically configures a clean, ergonomic demo review layout in CS2.
 
 ---
 
@@ -19,41 +19,30 @@ A zero-GUI, high-performance CLI utility for Counter-Strike 2. It parses `.dem` 
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Quick Download & Usage (No Installation Required!)
 
-### Prerequisites
-
-- Counter-Strike 2
-- Windows OS (PowerShell / Command Prompt)
-- [Node.js](https://nodejs.org/) (v16 or higher)
-
-### Installation
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-username/cs2-demo-voice-tool.git
-   cd cs2-demo-voice-tool
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
+1. Download **[CS2-Voice-Manager-v1.0.0-Windows.zip](https://github.com/abugeek/cs2-demo-voice-tool/releases/download/v1.0.0/CS2-Voice-Manager-v1.0.0-Windows.zip)** from the [Releases Page](https://github.com/abugeek/cs2-demo-voice-tool/releases).
+2. Extract the `.zip` archive anywhere on your computer.
+3. Extract your FACEIT or SourceTV demo archive to get the `.dem` file.
+4. **Drag & Drop** the `.dem` file onto **`cs2voice.cmd`**.
+5. Launch **Counter-Strike 2**, open the developer console (`~`), and type:
+   ```text
+   exec demo
+   playdemo match_filename
    ```
 
 ---
 
-## 🎮 Usage
+## 💻 Developer Setup (Build from Source)
 
-1. Extract your FACEIT or SourceTV demo archive to get the `.dem` file.
-2. **Drag & Drop** the `.dem` file onto `cs2voice.cmd`.
-3. Launch **Counter-Strike 2**, open the developer console (`~`), and load your demo config:
-   ```text
-   exec demo
-   ```
-4. Play your demo:
-   ```text
-   playdemo match_filename
-   ```
+If you want to modify or build from source:
+
+```bash
+git clone https://github.com/abugeek/cs2-demo-voice-tool.git
+cd cs2-demo-voice-tool
+npm install
+node index.js "path/to/match.dem"
+```
 
 ---
 
@@ -61,7 +50,7 @@ A zero-GUI, high-performance CLI utility for Counter-Strike 2. It parses `.dem` 
 
 | Key | Action | Description |
 | :--- | :--- | :--- |
-| **`SPACE`** | Pause / Resume | Toggles playback pause and play |
+| **`SPACE`** | Pause / Resume | Toggles playback pause and play (like YouTube) |
 | **HOLD `SHIFT`** | Fast Forward (4x) | Speeds up playback while held, returns to 1x on release |
 | **`B`** | Terrorist Voice | Listen to T-side team voice chat only |
 | **`N`** | Counter-Terrorist Voice | Listen to CT-side team voice chat only |
