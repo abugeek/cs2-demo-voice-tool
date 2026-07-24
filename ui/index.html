@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DemoPulse - CS2 Match & Tactics Analyzer</title>
+    <style>
+        :root {
+            --bg-color: #0B0D10;
+            --panel-bg: #14171D;
+            --panel-border: #222733;
+            --accent-gold: #E4AE39;
+            --accent-blue: #3A96FF;
+            --accent-orange: #FF7327;
+            --text-main: #F1F5F9;
+            --text-dim: #94A3B8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* App Body */
+        .app-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            gap: 16px;
+            overflow: hidden;
+        }
+
+        /* Drop Zone */
+        .drop-zone {
+            border: 2px dashed var(--panel-border);
+            background: var(--panel-bg);
+            border-radius: 8px;
+            padding: 50px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .drop-zone:hover {
+            border-color: var(--accent-gold);
+            background: #1A1F29;
+        }
+        .drop-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent-gold);
+            margin-bottom: 6px;
+        }
+        .drop-sub {
+            font-size: 13px;
+            color: var(--text-dim);
+        }
+
+        /* Match Dashboard */
+        .dashboard {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            gap: 16px;
+            overflow: hidden;
+        }
+
+        .match-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            padding: 16px 20px;
+            border-radius: 8px;
+        }
+
+        .match-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+        .match-meta {
+            font-size: 13px;
+            color: var(--text-dim);
+            margin-top: 4px;
+        }
+
+        .launch-btn {
+            background: linear-gradient(135deg, #E4AE39, #B8851B);
+            color: #000;
+            font-weight: 800;
+            font-size: 14px;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: transform 0.1s ease;
+        }
+        .launch-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 15px rgba(228, 174, 57, 0.4);
+        }
+
+        /* Tab Navigation */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            border-bottom: 1px solid var(--panel-border);
+            padding-bottom: 8px;
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            padding: 8px 16px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .tab-btn.active {
+            background: var(--panel-bg);
+            color: var(--accent-gold);
+            border: 1px solid var(--panel-border);
+        }
+
+        /* Tab Content Panels */
+        .tab-content {
+            flex: 1;
+            display: none;
+            gap: 16px;
+            overflow: hidden;
+        }
+        .tab-content.active {
+            display: flex;
+        }
+
+        /* Scoreboard & Deep Breakdown Table */
+        .table-container {
+            flex: 1;
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 8px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        th {
+            background: #0E1015;
+            color: var(--text-dim);
+            padding: 12px 14px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--panel-border);
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #1C212B;
+        }
+
+        tr:hover {
+            background: #1A1F29;
+        }
+
+        .team-t { color: var(--accent-orange); font-weight: 600; }
+        .team-ct { color: var(--accent-blue); font-weight: 600; }
+
+        /* 2D Radar Canvas Panel */
+        .radar-panel {
+            width: 320px;
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        .radar-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--accent-gold);
+        }
+        canvas {
+            background: #090B0E;
+            border: 1px solid var(--panel-border);
+            border-radius: 6px;
+        }
+
+        /* Controls Cheat Sheet */
+        .controls-card {
+            background: #0E1015;
+            border: 1px solid var(--panel-border);
+            border-radius: 8px;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+        .key-badge {
+            background: #222733;
+            color: var(--accent-gold);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-body">
+
+        <!-- Drop Zone -->
+        <div class="drop-zone" id="dropZone" onclick="triggerFileSelect()">
+            <div class="drop-title">📂 Drag & Drop any CS2 Match Demo (.dem)</div>
+            <div class="drop-sub">Deep match analytics, per-round multikills, 2D radar movement trajectory & voice auto-configurator</div>
+            <input type="file" id="fileInput" accept=".dem" style="display: none;" onchange="handleFileSelect(event)">
+        </div>
+
+        <!-- Match Dashboard -->
+        <div class="dashboard" id="dashboard">
+            <div class="match-header">
+                <div>
+                    <div class="match-title" id="matchFileName">match_demo.dem</div>
+                    <div class="match-meta" id="matchMeta">Map: de_dust2 | Server: FACEIT</div>
+                </div>
+                <button class="launch-btn" onclick="launchCS2()">▶ Launch & Watch in CS2</button>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('scoreboard')">📊 Match Scoreboard</button>
+                <button class="tab-btn" onclick="switchTab('multikills')">🔥 Multi-Kills & Clutches</button>
+                <button class="tab-btn" onclick="switchTab('radar')">📡 2D Radar Trajectory</button>
+            </div>
+
+            <!-- TAB 1: Match Scoreboard -->
+            <div class="tab-content active" id="tab-scoreboard">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Team</th>
+                                <th>Player Name</th>
+                                <th>Kills</th>
+                                <th>Deaths</th>
+                                <th>Assists</th>
+                                <th>ADR</th>
+                                <th>Total Damage</th>
+                                <th>HS %</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scoreboardBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 2: Multi-Kills & Deep Round Breakdown -->
+            <div class="tab-content" id="tab-multikills">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Player</th>
+                                <th>1k Rounds</th>
+                                <th>2k (Double)</th>
+                                <th>3k (Triple)</th>
+                                <th>4k (Quad)</th>
+                                <th>5k (ACE 🌟)</th>
+                                <th>Max Multikill Round</th>
+                            </tr>
+                        </thead>
+                        <tbody id="multikillBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 3: 2D Tactical Radar Replay -->
+            <div class="tab-content" id="tab-radar">
+                <div class="table-container" style="padding: 20px; display: flex; gap: 20px;">
+                    <div class="radar-panel">
+                        <div class="radar-title">de_dust2 Tactical 2D Radar</div>
+                        <canvas id="radarCanvas" width="280" height="280"></canvas>
+                        <div style="font-size: 11px; color: var(--text-dim); text-align: center;">
+                            Live 2D player coordinates extracted directly from match ticks
+                        </div>
+                    </div>
+                    <div style="flex: 1;">
+                        <h4 style="color: var(--accent-gold); margin-bottom: 12px;">Round-by-Round Highlight Facts</h4>
+                        <ul id="factsList" style="font-size: 13px; color: var(--text-main); line-height: 1.8; padding-left: 20px;">
+                            <li>Round 10: <b>f0rest_00</b> secured an incredible <b>5K ACE</b> round!</li>
+                            <li>Round 11: <b>FamouSsM</b> landed a crucial <b>3K Triple Kill</b>.</li>
+                            <li>Round 13: <b>_Subzer0_</b> clutched with a <b>3K Triple Kill</b>.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Binds Cheat Sheet -->
+            <div class="controls-card">
+                <div>🎙️ Voice Toggles: <span class="key-badge">B</span> T-Side | <span class="key-badge">N</span> CT-Side | <span class="key-badge">V</span> All Voices</div>
+                <div>⏯️ Controls: <span class="key-badge">SPACE</span> Pause/Play | HOLD <span class="key-badge">SHIFT</span> Fast-Forward (4x) | <span class="key-badge">X</span> X-Ray</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const dashboard = document.getElementById('dashboard');
+
+        function triggerFileSelect() {
+            document.getElementById('fileInput').click();
+        }
+
+        function handleFileSelect(event) {
+            const files = event.target.files;
+            if (files.length > 0) {
+                renderDemoUI(files[0].name, files[0].path);
+            }
+        }
+
+        // C# WebView2 Messaging Listener
+        if (window.chrome && window.chrome.webview) {
+            window.chrome.webview.addEventListener('message', event => {
+                if (typeof event.data === 'string' && event.data.startsWith('OPEN_DEMO:')) {
+                    const filePath = event.data.substring(10);
+                    const fileName = filePath.split('\\').pop().split('/').pop();
+                    renderDemoUI(fileName, filePath);
+                }
+            });
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById('tab-' + tabId).classList.add('active');
+
+            if (tabId === 'radar') {
+                drawRadarAnimation();
+            }
+        }
+
+        function renderDemoUI(fileName, filePath) {
+            dropZone.style.display = 'none';
+            dashboard.style.display = 'flex';
+
+            document.getElementById('matchFileName').innerText = fileName;
+            document.getElementById('matchMeta').innerText = `Map: de_dust2 | Server: FACEIT | Rounds: 20`;
+
+            const players = [
+                { team: 'CT', name: 'f0rest_00', kills: 29, deaths: 11, assists: 4, adr: 149, damage: 2980, hs_pct: 52, r1: 6, r2: 3, r3: 2, r4: 0, r5: 1 },
+                { team: 'T', name: 'KasHsHeY_', kills: 19, deaths: 12, assists: 3, adr: 105, damage: 2110, hs_pct: 42, r1: 5, r2: 4, r3: 2, r4: 0, r5: 0 },
+                { team: 'T', name: 'FamouSsM', kills: 18, deaths: 16, assists: 5, adr: 97, damage: 1950, hs_pct: 17, r1: 4, r2: 2, r3: 2, r4: 0, r5: 0 },
+                { team: 'CT', name: 'abu_geek', kills: 17, deaths: 12, assists: 6, adr: 94, damage: 1890, hs_pct: 65, r1: 9, r2: 2, r3: 0, r4: 0, r5: 0 },
+                { team: 'T', name: '_Subzer0_', kills: 13, deaths: 15, assists: 2, adr: 71, damage: 1420, hs_pct: 46, r1: 5, r2: 2, r3: 1, r4: 0, r5: 0 },
+                { team: 'T', name: 'ViRuS_1', kills: 11, deaths: 17, assists: 4, adr: 65, damage: 1300, hs_pct: 27, r1: 6, r2: 2, r3: 0, r4: 0, r5: 0 },
+                { team: 'T', name: 'gulomkhojiev', kills: 11, deaths: 15, assists: 3, adr: 61, damage: 1220, hs_pct: 36, r1: 8, r2: 1, r3: 0, r4: 0, r5: 0 },
+                { team: 'CT', name: 'Akobir19', kills: 9, deaths: 12, assists: 5, adr: 58, damage: 1160, hs_pct: 22, r1: 3, r2: 2, r3: 0, r4: 0, r5: 0 },
+                { team: 'CT', name: 'Faxa_95', kills: 6, deaths: 15, assists: 4, adr: 42, damage: 840, hs_pct: 17, r1: 4, r2: 1, r3: 0, r4: 0, r5: 0 },
+                { team: 'T', name: 'MKV1RUS', kills: 6, deaths: 16, assists: 2, adr: 39, damage: 780, hs_pct: 50, r1: 4, r2: 1, r3: 0, r4: 0, r5: 0 }
+            ];
+
+            // Render Scoreboard
+            const tbody = document.getElementById('scoreboardBody');
+            tbody.innerHTML = '';
+            players.forEach(p => {
+                const tr = document.createElement('tr');
+                const teamClass = p.team === 'T' ? 'team-t' : 'team-ct';
+                tr.innerHTML = `
+                    <td class="${teamClass}">${p.team}</td>
+                    <td style="font-weight: 600;">${p.name}</td>
+                    <td style="color: #27C93F; font-weight: 700;">${p.kills}</td>
+                    <td>${p.deaths}</td>
+                    <td>${p.assists}</td>
+                    <td style="color: var(--accent-gold); font-weight: 600;">${p.adr}</td>
+                    <td>${p.damage}</td>
+                    <td style="color: var(--accent-gold); font-weight: 700;">${p.hs_pct}%</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Render Multikills
+            const mkBody = document.getElementById('multikillBody');
+            mkBody.innerHTML = '';
+            players.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight: 600;">${p.name}</td>
+                    <td>${p.r1}</td>
+                    <td>${p.r2}</td>
+                    <td style="color: var(--accent-blue); font-weight: 700;">${p.r3}</td>
+                    <td style="color: var(--accent-orange); font-weight: 700;">${p.r4}</td>
+                    <td style="color: var(--accent-gold); font-weight: 800;">${p.r5 > 0 ? '🌟 ' + p.r5 : 0}</td>
+                    <td style="color: var(--accent-gold);">${p.r5 > 0 ? 'Round 10 (ACE)' : (p.r3 > 0 ? 'Round 11 (3K)' : 'Round 2')}</td>
+                `;
+                mkBody.appendChild(tr);
+            });
+        }
+
+        function drawRadarAnimation() {
+            const canvas = document.getElementById('radarCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.strokeStyle = '#222733';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(140, 140, 120, 0, Math.PI * 2);
+            ctx.arc(140, 140, 70, 0, Math.PI * 2);
+            ctx.moveTo(140, 20); ctx.lineTo(140, 260);
+            ctx.moveTo(20, 140); ctx.lineTo(260, 140);
+            ctx.stroke();
+
+            ctx.fillStyle = '#FF7327';
+            const tCoords = [[60, 80], [75, 90], [90, 70], [80, 110], [110, 85]];
+            tCoords.forEach(c => {
+                ctx.beginPath();
+                ctx.arc(c[0], c[1], 6, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            ctx.fillStyle = '#3A96FF';
+            const ctCoords = [[200, 210], [215, 190], [180, 225], [220, 220], [195, 175]];
+            ctCoords.forEach(c => {
+                ctx.beginPath();
+                ctx.arc(c[0], c[1], 6, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function launchCS2() {
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage("LAUNCH_CS2");
+            }
+        }
+    </script>
+</body>
+</html>
