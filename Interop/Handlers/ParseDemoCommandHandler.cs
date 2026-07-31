@@ -171,6 +171,9 @@ namespace DemoPulse.Interop.Handlers
                 string encodedCfgName = Uri.EscapeDataString(cfgName);
                 string encodedDemoToPlay = Uri.EscapeDataString(demoToPlay);
 
+                string consoleCmd = $"exec {cfgName}; playdemo {demoToPlay}";
+                SetClipboard(consoleCmd);
+
                 var cs2Processes = System.Diagnostics.Process.GetProcessesByName("cs2");
                 if (cs2Processes.Length > 0)
                 {
@@ -181,13 +184,10 @@ namespace DemoPulse.Interop.Handlers
                         SetForegroundWindow(proc.MainWindowHandle);
                     }
 
-                    string consoleCmd = $"exec {cfgName}; playdemo {demoToPlay}";
-                    SetClipboard(consoleCmd);
-
                     Action showDialogAction = () =>
                     {
                         _dialogService.ShowMessageBox(
-                            $"CS2 is already running!\n\nDemoPulse has focused CS2 and copied the play command to your clipboard:\n\n{consoleCmd}\n\nPress '~' in CS2 console and hit Ctrl+V + Enter!",
+                            $"CS2 is already running!\n\nDemoPulse has focused CS2 and copied the command to your clipboard:\n\n{consoleCmd}\n\nPress '~' in CS2 console and hit Ctrl+V + Enter!",
                             "CS2 Focused & Command Copied",
                             isWarning: false
                         );

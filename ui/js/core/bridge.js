@@ -85,7 +85,7 @@
         const fileName = State.currentMatchData && State.currentMatchData.meta ? State.currentMatchData.meta.fileName : "";
         if (!fileName) return;
         const nameNoExt = fileName.replace(/\.dem$/i, '');
-        const cmd = `playdemo ${nameNoExt}`;
+        const cmd = `exec demopulse; playdemo ${nameNoExt}`;
         navigator.clipboard.writeText(cmd).then(() => {
             alert(`CS2 console command copied to clipboard!\n${cmd}`);
         }).catch(() => {

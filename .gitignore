@@ -20,4 +20,6 @@ $RECYCLE.BIN/
 .gemini/
 *_code.txt
 *_code_utf8.txt
+*.zip
+
 
