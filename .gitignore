@@ -1,0 +1,23 @@
+# .NET Build outputs
+bin/
+obj/
+dist/
+*.user
+*.suo
+
+# Visual Studio / VS Code
+.vs/
+.idea/
+
+# OS generated
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# AI Agent & Scratch Files
+.gemini/
+*_code.txt
+*_code_utf8.txt
+

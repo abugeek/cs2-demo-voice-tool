@@ -1,35 +1,54 @@
-# DemoPulse - CS2 Match & Tactics Analyzer 🎮🎧
+# 🎮 DemoPulse - CS2 Match & Tactics Analyzer
 
-**DemoPulse** is a high-performance CS2 desktop application built with a CS2 Tactical Dark GUI. It parses `.dem` files instantly, displays full match scoreboards (K/D/A/Damage/HS%), calculates 32-bit signed voice bitmasks for team channels, and configures a clean demo review layout in CS2.
-
----
-
-## ⚡ Key Features
-
-- **Ultra-Lightweight (~580 KB Release Download)**: Fast, clean Windows application.
-- **Deep Match Statistics**:
-  - **Match Scoreboard**: Kills, Deaths, Assists, ADR, Total Damage, and Headshot %.
-  - **Multi-Kill Breakdown**: Track 2K, 3K, 4K, and **5K ACE** rounds per player.
-  - **2D Radar Trajectory**: Visual 2D tactical map tracking player coordinates.
-- **1-Click Game Launch**: Click **"Launch & Watch in CS2"** to copy the demo into your CS2 folder and start playback via Steam protocol.
-- **YouTube-Style Playback & Review Binds**:
-  - `SPACEBAR`: Instant Pause / Resume toggle.
-  - `SHIFT`: Hold to Fast-Forward (4x speed), release to return to 1x normal speed.
-  - `B` / `N` / `V`: Selective team voice switching (T-Only, CT-Only, or All Players).
-  - `X`: Native CS2 X-Ray wallhack outline toggle.
-  - `1` – `0`: Instant player spectating shortcuts.
+DemoPulse is a high-performance, lightweight native Windows application for analyzing Counter-Strike 2 match `.dem` files, viewing player stats, 2D radar trajectory replays, multi-kills breakdown, and configuring voice channels.
 
 ---
 
-## 🚀 Quick Download & Usage (580 KB Release)
+## 🚀 Development & Test Environment
 
-1. Download **[DemoPulse-v1.0.0-Windows.zip](https://github.com/abugeek/cs2-demo-voice-tool/releases/download/v1.0.0/DemoPulse-v1.0.0-Windows.zip)** from the [Releases Page](https://github.com/abugeek/cs2-demo-voice-tool/releases).
-2. Extract the `.zip` archive anywhere on your computer.
-3. Run **`DemoPulseNative.exe`** (or double-click any `.dem` file).
-4. View your match statistics, then click **"Launch & Watch in CS2"**!
+You no longer need to publish or build a release package every time you want to test a feature! You can run and debug DemoPulse in **Test Mode** immediately.
+
+### 1. Running in Test Mode (Instant Dev Loop)
+- **Option A (VS Code / F5)**: Open this folder in VS Code and press **`F5`** (or go to **Run and Debug** -> **DemoPulse (Test Mode)**).
+- **Option B (Batch Script)**: Double-click **`run-dev.bat`** in File Explorer.
+- **Option C (Terminal)**: Run `dotnet run` in your terminal.
 
 ---
 
-## 📄 License
+## 📁 Project Structure
 
-Distributed under the MIT License. See `LICENSE` for more information.
+```
+DemoPulse_Project/
+├── DemoPulse.csproj        # Main .NET 8 WPF Project file
+├── DemoPulse.sln           # Visual Studio / IDE Solution File
+├── App.xaml / .cs          # Application Entry Point
+├── MainWindow.xaml / .cs   # Native Window Container & WebView2 Host
+├── ui/
+│   └── index.html          # Web UI (Stats, 2D Radar, Multi-kills, CS2 Launcher)
+├── .vscode/
+│   ├── launch.json         # F5 Debugger Configuration
+│   └── tasks.json          # Build & Run tasks
+├── run-dev.bat             # 1-Click Development / Test Launcher
+├── build-release.bat       # 1-Click Single-File Release Builder
+└── .gitignore              # Ignores build binaries (bin/, obj/, dist/)
+```
+
+---
+
+## ⚙️ How to Edit & Add Features
+
+1. **Modifying UI & Features (HTML/CSS/JS)**:
+   - Edit [ui/index.html](file:///C:/Users/abdul/Downloads/DemoPulse_Project/ui/index.html).
+   - Press **F5** or run `run-dev.bat` to test your changes immediately.
+
+2. **Modifying Native C# Logic**:
+   - Edit [MainWindow.xaml.cs](file:///C:/Users/abdul/Downloads/DemoPulse_Project/MainWindow.xaml.cs).
+   - Add new bridge events between WebView2 (`webView.CoreWebView2.PostWebMessageAsString(...)`) and C# (`CoreWebView2_WebMessageReceived`).
+
+---
+
+## 📦 Building a Release Version
+
+When you are ready to distribute a release version:
+- Double-click **`build-release.bat`** (or run `dotnet publish -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -o .\dist`).
+- The standalone release executable will be saved in the `dist\` folder.

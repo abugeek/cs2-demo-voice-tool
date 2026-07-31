@@ -1,0 +1,49 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/DemoPulse.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Run DemoPulse (Test Mode)",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "run",
+        "--project",
+        "${workspaceFolder}/DemoPulse.csproj"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Publish Release Build",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "publish",
+        "${workspaceFolder}/DemoPulse.csproj",
+        "-c",
+        "Release",
+        "-r",
+        "win-x64",
+        "--self-contained",
+        "false",
+        "-p:PublishSingleFile=true"
+      ],
+      "problemMatcher": "$msCompile"
+    }
+  ]
+}

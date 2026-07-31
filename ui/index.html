@@ -4,463 +4,416 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DemoPulse - CS2 Match & Tactics Analyzer</title>
-    <style>
-        :root {
-            --bg-color: #0B0D10;
-            --panel-bg: #14171D;
-            --panel-border: #222733;
-            --accent-gold: #E4AE39;
-            --accent-blue: #3A96FF;
-            --accent-orange: #FF7327;
-            --text-main: #F1F5F9;
-            --text-dim: #94A3B8;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            user-select: none;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        /* App Body */
-        .app-body {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-            gap: 16px;
-            overflow: hidden;
-        }
-
-        /* Drop Zone */
-        .drop-zone {
-            border: 2px dashed var(--panel-border);
-            background: var(--panel-bg);
-            border-radius: 8px;
-            padding: 50px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .drop-zone:hover {
-            border-color: var(--accent-gold);
-            background: #1A1F29;
-        }
-        .drop-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--accent-gold);
-            margin-bottom: 6px;
-        }
-        .drop-sub {
-            font-size: 13px;
-            color: var(--text-dim);
-        }
-
-        /* Match Dashboard */
-        .dashboard {
-            display: none;
-            flex: 1;
-            flex-direction: column;
-            gap: 16px;
-            overflow: hidden;
-        }
-
-        .match-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: var(--panel-bg);
-            border: 1px solid var(--panel-border);
-            padding: 16px 20px;
-            border-radius: 8px;
-        }
-
-        .match-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-        .match-meta {
-            font-size: 13px;
-            color: var(--text-dim);
-            margin-top: 4px;
-        }
-
-        .launch-btn {
-            background: linear-gradient(135deg, #E4AE39, #B8851B);
-            color: #000;
-            font-weight: 800;
-            font-size: 14px;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 6px;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: transform 0.1s ease;
-        }
-        .launch-btn:hover {
-            transform: scale(1.02);
-            box-shadow: 0 0 15px rgba(228, 174, 57, 0.4);
-        }
-
-        /* Tab Navigation */
-        .tabs {
-            display: flex;
-            gap: 8px;
-            border-bottom: 1px solid var(--panel-border);
-            padding-bottom: 8px;
-        }
-        .tab-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-dim);
-            padding: 8px 16px;
-            font-weight: 600;
-            font-size: 13px;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-        .tab-btn.active {
-            background: var(--panel-bg);
-            color: var(--accent-gold);
-            border: 1px solid var(--panel-border);
-        }
-
-        /* Tab Content Panels */
-        .tab-content {
-            flex: 1;
-            display: none;
-            gap: 16px;
-            overflow: hidden;
-        }
-        .tab-content.active {
-            display: flex;
-        }
-
-        /* Scoreboard & Deep Breakdown Table */
-        .table-container {
-            flex: 1;
-            background: var(--panel-bg);
-            border: 1px solid var(--panel-border);
-            border-radius: 8px;
-            overflow-y: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            font-size: 13px;
-        }
-
-        th {
-            background: #0E1015;
-            color: var(--text-dim);
-            padding: 12px 14px;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-bottom: 1px solid var(--panel-border);
-        }
-
-        td {
-            padding: 12px 14px;
-            border-bottom: 1px solid #1C212B;
-        }
-
-        tr:hover {
-            background: #1A1F29;
-        }
-
-        .team-t { color: var(--accent-orange); font-weight: 600; }
-        .team-ct { color: var(--accent-blue); font-weight: 600; }
-
-        /* 2D Radar Canvas Panel */
-        .radar-panel {
-            width: 320px;
-            background: var(--panel-bg);
-            border: 1px solid var(--panel-border);
-            border-radius: 8px;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-        }
-        .radar-title {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--accent-gold);
-        }
-        canvas {
-            background: #090B0E;
-            border: 1px solid var(--panel-border);
-            border-radius: 6px;
-        }
-
-        /* Controls Cheat Sheet */
-        .controls-card {
-            background: #0E1015;
-            border: 1px solid var(--panel-border);
-            border-radius: 8px;
-            padding: 12px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 13px;
-        }
-        .key-badge {
-            background: #222733;
-            color: var(--accent-gold);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: 700;
-        }
-    </style>
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/layout.css">
 </head>
 <body>
 
     <div class="app-body">
 
-        <!-- Drop Zone -->
+        <!-- Drop Zone (Displayed on App Startup) -->
         <div class="drop-zone" id="dropZone" onclick="triggerFileSelect()">
-            <div class="drop-title">📂 Drag & Drop any CS2 Match Demo (.dem)</div>
-            <div class="drop-sub">Deep match analytics, per-round multikills, 2D radar movement trajectory & voice auto-configurator</div>
+            <div class="drop-icon">📂</div>
+            <div class="drop-title">Drag & Drop CS2 Match Demo (.dem)</div>
+            <div class="drop-sub">Click anywhere here or drag a .dem file to analyze match stats, head-to-head duels & voice bitmask auto-configurator</div>
+            <div class="error-toast" id="errorToast"></div>
             <input type="file" id="fileInput" accept=".dem" style="display: none;" onchange="handleFileSelect(event)">
+        </div>
+
+        <!-- Loading State (Shown while parsing) -->
+        <div class="loading-state" id="loadingState">
+            <div class="spinner"></div>
+            <div class="loading-title">Parsing Demo File…</div>
+            <div class="loading-sub" id="loadingSubText">Reading match events, player stats, round data…</div>
         </div>
 
         <!-- Match Dashboard -->
         <div class="dashboard" id="dashboard">
             <div class="match-header">
                 <div>
-                    <div class="match-title" id="matchFileName">match_demo.dem</div>
-                    <div class="match-meta" id="matchMeta">Map: de_dust2 | Server: FACEIT</div>
+                    <div class="match-title" style="display: flex; align-items: center; gap: 10px;">
+                        <span>🎮</span>
+                        <span id="matchFileName">faceit_match.dem</span>
+                        <button class="btn-secondary rename" onclick="openRenameModal()" title="Rename Demo File on Disk">✏️ Rename</button>
+                        <button class="btn-secondary" onclick="openDemoFolder()" title="Open File Location in Explorer">📂 Open Folder</button>
+                    </div>
+                    <div class="match-meta" id="matchMeta">Map: de_dust2 | Server: FACEIT GOTV | Score: 11 - 9 (CT Win)</div>
                 </div>
-                <button class="launch-btn" onclick="launchCS2()">▶ Launch & Watch in CS2</button>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn-action green" onclick="copyPlaydemoCmd()" title="Copy playdemo console command">📋 Copy playdemo</button>
+                    <button class="btn-action gold" onclick="openSettingsModal()">⚙️ Settings</button>
+                    <button class="btn-action" onclick="triggerFileSelect()">📂 Open Another Demo</button>
+                    <button class="launch-btn" onclick="launchCS2()">▶ Launch & Watch in CS2</button>
+                </div>
             </div>
 
             <!-- Tab Navigation -->
             <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('scoreboard')">📊 Match Scoreboard</button>
-                <button class="tab-btn" onclick="switchTab('multikills')">🔥 Multi-Kills & Clutches</button>
-                <button class="tab-btn" onclick="switchTab('radar')">📡 2D Radar Trajectory</button>
+                <button class="tab-btn active" onclick="switchTab(this, 'scoreboard')">📊 Scoreboard & Micro Metrics</button>
+                <button class="tab-btn" onclick="switchTab(this, 'duels')">⚔️ Head-to-Head Duels Matrix</button>
+                <button class="tab-btn" onclick="switchTab(this, 'clutches')">🏆 Clutches & Hero Plays</button>
+                <button class="tab-btn" onclick="switchTab(this, 'utility')">⚡ Utility & Flashes Efficiency</button>
+                <button class="tab-btn" onclick="switchTab(this, 'voice')">🎙️ Voice Bitmask Configurator</button>
             </div>
 
-            <!-- TAB 1: Match Scoreboard -->
-            <div class="tab-content active" id="tab-scoreboard">
+            <!-- TAB 1: Match Summary & Category Sub-Tabs -->
+            <div class="tab-content active" id="tab-scoreboard" style="flex-direction: column; overflow-y: auto;">
+                
+                <!-- Top MVP Hero Banner -->
+                <div class="mvp-hero-banner" id="mvpHeroBanner">
+                    <div class="mvp-card">
+                        <div style="font-size: 11px; font-weight: 800; color: var(--accent-gold); display: flex; align-items: center; gap: 4px;">
+                            <span>★</span> MATCH MVP
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px; margin-top: 6px;">
+                            <div style="font-size: 28px;">👑</div>
+                            <div>
+                                <div style="font-size: 16px; font-weight: 800; color: #FFF;" id="mvpPlayerName">--</div>
+                                <div style="font-size: 11px; color: var(--text-dim);" id="mvpPlayerTeam">--</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 16px; margin-top: 12px; font-size: 12px;">
+                            <div>
+                                <div style="font-size: 9px; color: var(--text-dim); text-transform: uppercase;">Rating</div>
+                                <div style="font-weight: 800; font-size: 14px;" id="mvpRating">--</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 9px; color: var(--text-dim); text-transform: uppercase;">ADR</div>
+                                <div style="font-weight: 800; font-size: 14px; color: var(--accent-gold);" id="mvpAdr">--</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 9px; color: var(--text-dim); text-transform: uppercase;">K / D / A</div>
+                                <div style="font-weight: 800; font-size: 14px; color: #FFF;" id="mvpKda">--</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 9px; color: var(--text-dim); text-transform: uppercase;">HS %</div>
+                                <div style="font-weight: 800; font-size: 14px; color: var(--accent-orange);" id="mvpHsPct">--</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Performance Highperformer Cards -->
+                    <div class="mvp-hero-stats-grid">
+                        <div class="hero-stat-card">
+                            <div style="font-size: 10px; color: var(--text-dim); text-transform: uppercase;">Most Kills</div>
+                            <div style="font-size: 14px; font-weight: 700; color: var(--text-main); margin-top: 2px;" id="statLeaderKills">--</div>
+                        </div>
+                        <div class="hero-stat-card">
+                            <div style="font-size: 10px; color: var(--text-dim); text-transform: uppercase;">Most Damage (ADR)</div>
+                            <div style="font-size: 14px; font-weight: 700; color: var(--accent-gold); margin-top: 2px;" id="statLeaderAdr">--</div>
+                        </div>
+                        <div class="hero-stat-card">
+                            <div style="font-size: 10px; color: var(--text-dim); text-transform: uppercase;">Highest KAST</div>
+                            <div style="font-size: 14px; font-weight: 700; color: var(--accent-green); margin-top: 2px;" id="statLeaderKast">--</div>
+                        </div>
+                        <div class="hero-stat-card">
+                            <div style="font-size: 10px; color: var(--text-dim); text-transform: uppercase;">First Kills (Entry)</div>
+                            <div style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-top: 2px;" id="statLeaderEntry">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub-Tabs & Controls Navigation Bar -->
+                <div class="subtab-toolbar">
+                    <!-- Left: FACEIT Category Sub-Tabs -->
+                    <div class="subtab-nav">
+                        <button class="subtab-btn active" onclick="switchSubTab('general')">General</button>
+                        <button class="subtab-btn" onclick="switchSubTab('advanced')">Advanced</button>
+                        <button class="subtab-btn" onclick="switchSubTab('entry')">Entry</button>
+                        <button class="subtab-btn" onclick="switchSubTab('trade')">Trade</button>
+                        <button class="subtab-btn" onclick="switchSubTab('clutch')">Clutch</button>
+                    </div>
+
+                    <!-- Right: Filters & Grouping Toggles -->
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div class="toggle-group">
+                            <button class="toggle-btn active" id="btnGroupTeam" onclick="setGroupMode('team')">Sort by Team</button>
+                            <button class="toggle-btn" id="btnGroupPlayer" onclick="setGroupMode('player')">Sort by Players</button>
+                        </div>
+                        <div class="toggle-group">
+                            <button class="toggle-btn active" id="btnFilterAll" onclick="setTeamFilter('ALL')">All</button>
+                            <button class="toggle-btn" id="btnFilterT" onclick="setTeamFilter('T')">🟧 T</button>
+                            <button class="toggle-btn" id="btnFilterCT" onclick="setTeamFilter('CT')">🟦 CT</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scoreboard Dynamic Tables Container -->
+                <div class="table-container" id="scoreboardTablesContainer" style="padding: 12px; display: flex; flex-direction: column; gap: 16px;">
+                </div>
+
+            </div>
+
+            <!-- TAB 2: Head-to-Head Duels Matrix -->
+            <div class="tab-content" id="tab-duels">
+                <div class="table-container" style="padding: 16px;">
+                    <h4 style="color: var(--accent-gold); margin-bottom: 12px;">⚔️ Head-to-Head Duels Matrix (T vs CT)</h4>
+                    <p style="font-size: 11px; color: var(--text-dim); margin-bottom: 16px;">Shows pairwise kill duels won by Terrorist players (Rows) against Counter-Terrorist players (Columns). Duel wins are tracked from <code>player_death</code> events in the real demo file — <span style="color: var(--accent-gold);">0–0 means no recorded duel outcome</span> between those two players.</p>
+                    <div id="duelsMatrixContainer"></div>
+                </div>
+            </div>
+
+            <!-- TAB 3: Clutches & Hero Plays -->
+            <div class="tab-content" id="tab-clutches">
+                <div class="table-container" style="padding: 20px; display: flex; flex-direction: column; gap: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h4 style="color: var(--accent-gold); display: flex; align-items: center; gap: 8px;">
+                                🏆 Clutches & High-Pressure Hero Plays
+                            </h4>
+                            <p style="font-size: 11px; color: var(--text-dim); margin-top: 4px;">
+                                Real-time round victory tracking when a player was the lone survivor (1v1, 1v2, 1v3, 1v4, 1v5).
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Clutch Summary Metric Cards -->
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;" id="clutchSummaryCards">
+                        <div style="background: #0E1015; border: 1px solid var(--panel-border); border-radius: 8px; padding: 12px; text-align: center;">
+                            <div style="font-size: 10px; color: var(--text-dim); text-transform: uppercase;">Total Clutches Won</div>
+                            <div style="font-size: 24px; font-weight: 800; color: var(--accent-gold);" id="statTotalClutches">0</div>
+                        </div>
+                        <div style="background: #0E1015; border: 1px solid var(--panel-border); border-radius: 8px; padding: 12px; text-align: center;">
+                            <div style="font-size: 10px; color: var(--text-dim); text-transform: uppercase;">1v1 / 1v2 Duels</div>
+                            <div style="font-size: 24px; font-weight: 800; color: var(--accent-blue);" id="stat1v11v2">0</div>
+                        </div>
+                        <div style="background: #0E1015; border: 1px solid var(--panel-border); border-radius: 8px; padding: 12px; text-align: center;">
+                            <div style="font-size: 10px; color: var(--text-dim); text-transform: uppercase;">1v3+ Hero Plays</div>
+                            <div style="font-size: 24px; font-weight: 800; color: var(--accent-green);" id="stat1v3Plus">0</div>
+                        </div>
+                        <div style="background: #0E1015; border: 1px solid var(--panel-border); border-radius: 8px; padding: 12px; text-align: center;">
+                            <div style="font-size: 10px; color: var(--text-dim); text-transform: uppercase;">Top Clutch Player</div>
+                            <div style="font-size: 16px; font-weight: 800; color: var(--accent-orange); margin-top: 4px;" id="statClutchMvp">None</div>
+                        </div>
+                    </div>
+
+                    <!-- Clutches Detail Table -->
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Round</th>
+                                <th>Side</th>
+                                <th>Clutch MVP</th>
+                                <th>Clutch Situation</th>
+                                <th>Win Condition</th>
+                                <th>Opponents Faced</th>
+                                <th>Round Summary</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clutchesBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 3: Utility & Flashes Efficiency -->
+            <div class="tab-content" id="tab-utility">
                 <div class="table-container">
                     <table>
                         <thead>
                             <tr>
                                 <th>Team</th>
-                                <th>Player Name</th>
-                                <th>Kills</th>
-                                <th>Deaths</th>
-                                <th>Assists</th>
-                                <th>ADR</th>
-                                <th>Total Damage</th>
-                                <th>HS %</th>
-                            </tr>
-                        </thead>
-                        <tbody id="scoreboardBody"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- TAB 2: Multi-Kills & Deep Round Breakdown -->
-            <div class="tab-content" id="tab-multikills">
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
                                 <th>Player</th>
-                                <th>1k Rounds</th>
-                                <th>2k (Double)</th>
-                                <th>3k (Triple)</th>
-                                <th>4k (Quad)</th>
-                                <th>5k (ACE 🌟)</th>
-                                <th>Max Multikill Round</th>
+                                <th>Flashes Thrown</th>
+                                <th>Enemies Blinded</th>
+                                <th>Efficiency</th>
+                                <th>Avg Blind Duration</th>
+                                <th>Team Flashes</th>
+                                <th>Utility Damage</th>
+                                <th>Rating</th>
                             </tr>
                         </thead>
-                        <tbody id="multikillBody"></tbody>
+                        <tbody id="utilityBody"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- TAB 3: 2D Tactical Radar Replay -->
-            <div class="tab-content" id="tab-radar">
-                <div class="table-container" style="padding: 20px; display: flex; gap: 20px;">
-                    <div class="radar-panel">
-                        <div class="radar-title">de_dust2 Tactical 2D Radar</div>
-                        <canvas id="radarCanvas" width="280" height="280"></canvas>
-                        <div style="font-size: 11px; color: var(--text-dim); text-align: center;">
-                            Live 2D player coordinates extracted directly from match ticks
+            <!-- TAB 4: Voice Bitmask Configurator -->
+            <div class="tab-content" id="tab-voice">
+                <div class="table-container" style="padding: 20px; display: flex; flex-direction: column; gap: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h4 style="color: var(--accent-gold); display: flex; align-items: center; gap: 8px;">
+                                🎙️ CS2 Voice Channel Bitmask Auto-Configurator
+                            </h4>
+                            <p style="font-size: 11px; color: var(--text-dim); margin-top: 4px;">
+                                Control spectator voice channels in CS2 demo replay using <code>tv_listen_voice_indices</code>. Toggle player slots to mute enemy team calls.
+                            </p>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn-ctrl" onclick="setPresetMode('T')" id="btnVoiceT">[B] T-Side Only</button>
+                            <button class="btn-ctrl" onclick="setPresetMode('CT')" id="btnVoiceCT">[N] CT-Side Only</button>
+                            <button class="btn-ctrl active" onclick="setPresetMode('ALL')" id="btnVoiceALL">[V] All Comms</button>
                         </div>
                     </div>
-                    <div style="flex: 1;">
-                        <h4 style="color: var(--accent-gold); margin-bottom: 12px;">Round-by-Round Highlight Facts</h4>
-                        <ul id="factsList" style="font-size: 13px; color: var(--text-main); line-height: 1.8; padding-left: 20px;">
-                            <li>Round 10: <b>f0rest_00</b> secured an incredible <b>5K ACE</b> round!</li>
-                            <li>Round 11: <b>FamouSsM</b> landed a crucial <b>3K Triple Kill</b>.</li>
-                            <li>Round 13: <b>_Subzer0_</b> clutched with a <b>3K Triple Kill</b>.</li>
-                        </ul>
+
+                    <!-- Dynamic Player Slot Cards Grid (Two Team Columns: T vs CT) -->
+                    <div style="display: flex; gap: 16px;">
+                        <!-- T-Side Column -->
+                        <div style="flex: 1; background: #0E1015; border: 1px solid rgba(255, 115, 39, 0.3); border-radius: 8px; padding: 14px;">
+                            <div style="font-size: 12px; font-weight: 700; color: var(--accent-orange); margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+                                <span>🟧 Terrorist Voice Channels</span>
+                                <span class="badge-t">T-SIDE SLOTS</span>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 8px;" id="containerTSlots"></div>
+                        </div>
+
+                        <!-- CT-Side Column -->
+                        <div style="flex: 1; background: #0E1015; border: 1px solid rgba(58, 150, 255, 0.3); border-radius: 8px; padding: 14px;">
+                            <div style="font-size: 12px; font-weight: 700; color: var(--accent-blue); margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+                                <span>🟦 Counter-Terrorist Voice Channels</span>
+                                <span class="badge-ct">CT-SIDE SLOTS</span>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 8px;" id="containerCTSlots"></div>
+                        </div>
+                    </div>
+
+                    <!-- Live Command Output & Actions -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; background: #06080B; border: 1px solid #1C212B; border-radius: 8px; padding: 12px 16px;">
+                        <div style="flex: 1;">
+                            <div style="font-size: 10px; color: var(--text-dim); text-transform: uppercase;">Generated CS2 Console Command</div>
+                            <div style="font-family: monospace; font-size: 13px; color: var(--accent-green); margin-top: 2px;" id="liveConsoleCmd">
+                                sv_cheats 1; tv_listen_voice_indices 18446744073709551615
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn-ctrl" onclick="copyConsoleCmd()" style="background: #222733; color: #fff;">[C] 📋 Copy Command</button>
+                            <button class="launch-btn" onclick="exportVoiceConfig(State.currentMode)" style="padding: 8px 16px;">💾 Export .cfg File</button>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Binds Cheat Sheet -->
-            <div class="controls-card">
-                <div>🎙️ Voice Toggles: <span class="key-badge">B</span> T-Side | <span class="key-badge">N</span> CT-Side | <span class="key-badge">V</span> All Voices</div>
-                <div>⏯️ Controls: <span class="key-badge">SPACE</span> Pause/Play | HOLD <span class="key-badge">SHIFT</span> Fast-Forward (4x) | <span class="key-badge">X</span> X-Ray</div>
+        </div>
+
+        <!-- Settings Modal Overlay -->
+        <div class="modal-overlay" id="settingsModal">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <div class="modal-title">⚙️ DemoPulse Settings & CS2 Config Setup</div>
+                    <button class="btn-ctrl" onclick="closeSettingsModal()" style="padding: 4px 10px; background: transparent; color: var(--text-dim);">✕</button>
+                </div>
+
+                <div class="form-row">
+                    <label class="form-label">CS2 Exec Config File Name</label>
+                    <input type="text" class="form-input" id="cfgFileNameInput" placeholder="demopulse" value="demopulse" oninput="updateCfgPreview(this.value)">
+                    <div style="font-size: 10px; color: var(--text-dim); margin-top: 2px;">In-Game launch command: <code style="color: var(--accent-gold);">+exec <span id="cfgNamePreview">demopulse</span></code></div>
+                </div>
+
+                <div class="form-row">
+                    <label class="form-label">CS2 cfg Folder Location</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" class="form-input" id="cs2FolderInput" placeholder="C:\Program Files (x86)\Steam\steamapps\common\Counter-Strike Global Offensive\game\csgo\cfg" style="flex: 1;">
+                        <button class="btn-ctrl" onclick="browseCs2Folder()" style="background: #222733; color: #fff;">📂 Browse</button>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                        <label class="form-label">CS2 In-Game Voice Channel Hotkeys</label>
+                        <span style="font-size: 10px; color: var(--text-dim);">Click any field below to record keypress</span>
+                    </div>
+                    <div class="keybind-grid">
+                        <div>
+                            <div style="font-size: 10px; color: var(--accent-orange); margin-bottom: 3px;">🟧 T-Side Voice Key</div>
+                            <input type="text" class="keybind-recorder" id="keyTInput" value="b" readonly onclick="startKeyRecording(this.id)">
+                        </div>
+                        <div>
+                            <div style="font-size: 10px; color: var(--accent-blue); margin-bottom: 3px;">🟦 CT-Side Voice Key</div>
+                            <input type="text" class="keybind-recorder" id="keyCtInput" value="n" readonly onclick="startKeyRecording(this.id)">
+                        </div>
+                        <div>
+                            <div style="font-size: 10px; color: var(--accent-gold); margin-bottom: 3px;">🟨 All Comms Voice Key</div>
+                            <input type="text" class="keybind-recorder" id="keyAllInput" value="v" readonly onclick="startKeyRecording(this.id)">
+                        </div>
+                        <div>
+                            <div style="font-size: 10px; color: var(--accent-red); margin-bottom: 3px;">🟥 Mute Comms Voice Key</div>
+                            <input type="text" class="keybind-recorder" id="keyMuteInput" value="m" readonly onclick="startKeyRecording(this.id)">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                        <label class="form-label">CS2 Demo Replay Playback Control Hotkeys</label>
+                        <span style="font-size: 10px; color: var(--text-dim);">Click any field below to record keypress</span>
+                    </div>
+                    <div class="keybind-grid">
+                        <div>
+                            <div style="font-size: 10px; color: var(--accent-green); margin-bottom: 3px;">⏩ Fast Forward (2x Speed)</div>
+                            <input type="text" class="keybind-recorder" id="keySpeedUpInput" value="shift" readonly onclick="startKeyRecording(this.id)">
+                        </div>
+                        <div>
+                            <div style="font-size: 10px; color: var(--accent-blue); margin-bottom: 3px;">🐌 Slow Motion (0.5x Speed)</div>
+                            <input type="text" class="keybind-recorder" id="keySlowMoInput" value="ctrl" readonly onclick="startKeyRecording(this.id)">
+                        </div>
+                        <div>
+                            <div style="font-size: 10px; color: var(--accent-gold); margin-bottom: 3px;">⏯️ Pause / Resume Toggle</div>
+                            <input type="text" class="keybind-recorder" id="keyPauseInput" value="space" readonly onclick="startKeyRecording(this.id)">
+                        </div>
+                        <div>
+                            <div style="font-size: 10px; color: var(--text-dim); margin-bottom: 3px;">🔄 Normal Speed (1x)</div>
+                            <input type="text" class="keybind-recorder" id="keyResetInput" value="r" readonly onclick="startKeyRecording(this.id)">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row" style="flex-direction: column; gap: 8px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="autoSaveCheckbox" checked style="accent-color: var(--accent-gold); transform: scale(1.2); cursor: pointer;">
+                            <label for="autoSaveCheckbox" style="font-size: 12px; cursor: pointer;">Auto-sync <code>.cfg</code> directly into CS2's <code>cfg</code> folder</label>
+                        </div>
+                        <button class="btn-ctrl" onclick="resetHotkeysToDefault()" style="background: rgba(255,255,255,0.05); color: var(--accent-gold); font-size: 11px;">🔄 Reset Hotkeys</button>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="autoCopyDemoCheckbox" checked style="accent-color: var(--accent-gold); transform: scale(1.2); cursor: pointer;">
+                        <label for="autoCopyDemoCheckbox" style="font-size: 12px; cursor: pointer;">Auto-copy <code>.dem</code> file into CS2's <code>csgo</code> folder on Launch</label>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px;">
+                    <button class="btn-ctrl" onclick="closeSettingsModal()" style="background: #222733; color: var(--text-dim); padding: 8px 16px;">Cancel</button>
+                    <button class="launch-btn" onclick="saveSettingsFromModal()" style="padding: 8px 20px;">💾 Save Settings</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rename Demo Modal Overlay -->
+        <div class="modal-overlay" id="renameModal">
+            <div class="modal-card" style="max-width: 450px;">
+                <div class="modal-header">
+                    <div class="modal-title">✏️ Rename CS2 Demo File</div>
+                    <button class="btn-ctrl" onclick="closeRenameModal()" style="padding: 4px 10px; background: transparent; color: var(--text-dim);">✕</button>
+                </div>
+                <div class="form-row">
+                    <label class="form-label">New Demo File Name</label>
+                    <input type="text" class="form-input" id="renameInput" placeholder="pro_match_dust2.dem">
+                    <div style="font-size: 10px; color: var(--text-dim); margin-top: 4px;">The file will be safely renamed on your disk in its current folder.</div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 12px;">
+                    <button class="btn-ctrl" onclick="closeRenameModal()" style="background: #222733; color: var(--text-dim); padding: 8px 16px;">Cancel</button>
+                    <button class="launch-btn" onclick="submitRenameDemo()" style="padding: 8px 20px;">💾 Rename File</button>
+                </div>
             </div>
         </div>
 
     </div>
 
-    <script>
-        const dropZone = document.getElementById('dropZone');
-        const dashboard = document.getElementById('dashboard');
+    <!-- Modular Script Imports -->
+    <script src="js/core/state.js"></script>
+    <script src="js/core/bridge.js"></script>
+    <script src="js/components/dropZone.js"></script>
+    <script src="js/components/settingsModal.js"></script>
+    <script src="js/keybinds.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/renderers/scoreboard.js"></script>
+    <script src="js/renderers/duels.js"></script>
+    <script src="js/renderers/clutches.js"></script>
+    <script src="js/renderers/utility.js"></script>
+    <script src="js/renderers/voice.js"></script>
+    <script src="js/app.js"></script>
 
-        function triggerFileSelect() {
-            document.getElementById('fileInput').click();
-        }
-
-        function handleFileSelect(event) {
-            const files = event.target.files;
-            if (files.length > 0) {
-                renderDemoUI(files[0].name, files[0].path);
-            }
-        }
-
-        // C# WebView2 Messaging Listener
-        if (window.chrome && window.chrome.webview) {
-            window.chrome.webview.addEventListener('message', event => {
-                if (typeof event.data === 'string' && event.data.startsWith('OPEN_DEMO:')) {
-                    const filePath = event.data.substring(10);
-                    const fileName = filePath.split('\\').pop().split('/').pop();
-                    renderDemoUI(fileName, filePath);
-                }
-            });
-        }
-
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-
-            event.target.classList.add('active');
-            document.getElementById('tab-' + tabId).classList.add('active');
-
-            if (tabId === 'radar') {
-                drawRadarAnimation();
-            }
-        }
-
-        function renderDemoUI(fileName, filePath) {
-            dropZone.style.display = 'none';
-            dashboard.style.display = 'flex';
-
-            document.getElementById('matchFileName').innerText = fileName;
-            document.getElementById('matchMeta').innerText = `Map: de_dust2 | Server: FACEIT | Rounds: 20`;
-
-            const players = [
-                { team: 'CT', name: 'f0rest_00', kills: 29, deaths: 11, assists: 4, adr: 149, damage: 2980, hs_pct: 52, r1: 6, r2: 3, r3: 2, r4: 0, r5: 1 },
-                { team: 'T', name: 'KasHsHeY_', kills: 19, deaths: 12, assists: 3, adr: 105, damage: 2110, hs_pct: 42, r1: 5, r2: 4, r3: 2, r4: 0, r5: 0 },
-                { team: 'T', name: 'FamouSsM', kills: 18, deaths: 16, assists: 5, adr: 97, damage: 1950, hs_pct: 17, r1: 4, r2: 2, r3: 2, r4: 0, r5: 0 },
-                { team: 'CT', name: 'abu_geek', kills: 17, deaths: 12, assists: 6, adr: 94, damage: 1890, hs_pct: 65, r1: 9, r2: 2, r3: 0, r4: 0, r5: 0 },
-                { team: 'T', name: '_Subzer0_', kills: 13, deaths: 15, assists: 2, adr: 71, damage: 1420, hs_pct: 46, r1: 5, r2: 2, r3: 1, r4: 0, r5: 0 },
-                { team: 'T', name: 'ViRuS_1', kills: 11, deaths: 17, assists: 4, adr: 65, damage: 1300, hs_pct: 27, r1: 6, r2: 2, r3: 0, r4: 0, r5: 0 },
-                { team: 'T', name: 'gulomkhojiev', kills: 11, deaths: 15, assists: 3, adr: 61, damage: 1220, hs_pct: 36, r1: 8, r2: 1, r3: 0, r4: 0, r5: 0 },
-                { team: 'CT', name: 'Akobir19', kills: 9, deaths: 12, assists: 5, adr: 58, damage: 1160, hs_pct: 22, r1: 3, r2: 2, r3: 0, r4: 0, r5: 0 },
-                { team: 'CT', name: 'Faxa_95', kills: 6, deaths: 15, assists: 4, adr: 42, damage: 840, hs_pct: 17, r1: 4, r2: 1, r3: 0, r4: 0, r5: 0 },
-                { team: 'T', name: 'MKV1RUS', kills: 6, deaths: 16, assists: 2, adr: 39, damage: 780, hs_pct: 50, r1: 4, r2: 1, r3: 0, r4: 0, r5: 0 }
-            ];
-
-            // Render Scoreboard
-            const tbody = document.getElementById('scoreboardBody');
-            tbody.innerHTML = '';
-            players.forEach(p => {
-                const tr = document.createElement('tr');
-                const teamClass = p.team === 'T' ? 'team-t' : 'team-ct';
-                tr.innerHTML = `
-                    <td class="${teamClass}">${p.team}</td>
-                    <td style="font-weight: 600;">${p.name}</td>
-                    <td style="color: #27C93F; font-weight: 700;">${p.kills}</td>
-                    <td>${p.deaths}</td>
-                    <td>${p.assists}</td>
-                    <td style="color: var(--accent-gold); font-weight: 600;">${p.adr}</td>
-                    <td>${p.damage}</td>
-                    <td style="color: var(--accent-gold); font-weight: 700;">${p.hs_pct}%</td>
-                `;
-                tbody.appendChild(tr);
-            });
-
-            // Render Multikills
-            const mkBody = document.getElementById('multikillBody');
-            mkBody.innerHTML = '';
-            players.forEach(p => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td style="font-weight: 600;">${p.name}</td>
-                    <td>${p.r1}</td>
-                    <td>${p.r2}</td>
-                    <td style="color: var(--accent-blue); font-weight: 700;">${p.r3}</td>
-                    <td style="color: var(--accent-orange); font-weight: 700;">${p.r4}</td>
-                    <td style="color: var(--accent-gold); font-weight: 800;">${p.r5 > 0 ? '🌟 ' + p.r5 : 0}</td>
-                    <td style="color: var(--accent-gold);">${p.r5 > 0 ? 'Round 10 (ACE)' : (p.r3 > 0 ? 'Round 11 (3K)' : 'Round 2')}</td>
-                `;
-                mkBody.appendChild(tr);
-            });
-        }
-
-        function drawRadarAnimation() {
-            const canvas = document.getElementById('radarCanvas');
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            ctx.strokeStyle = '#222733';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.arc(140, 140, 120, 0, Math.PI * 2);
-            ctx.arc(140, 140, 70, 0, Math.PI * 2);
-            ctx.moveTo(140, 20); ctx.lineTo(140, 260);
-            ctx.moveTo(20, 140); ctx.lineTo(260, 140);
-            ctx.stroke();
-
-            ctx.fillStyle = '#FF7327';
-            const tCoords = [[60, 80], [75, 90], [90, 70], [80, 110], [110, 85]];
-            tCoords.forEach(c => {
-                ctx.beginPath();
-                ctx.arc(c[0], c[1], 6, 0, Math.PI * 2);
-                ctx.fill();
-            });
-
-            ctx.fillStyle = '#3A96FF';
-            const ctCoords = [[200, 210], [215, 190], [180, 225], [220, 220], [195, 175]];
-            ctCoords.forEach(c => {
-                ctx.beginPath();
-                ctx.arc(c[0], c[1], 6, 0, Math.PI * 2);
-                ctx.fill();
-            });
-        }
-
-        function launchCS2() {
-            if (window.chrome && window.chrome.webview) {
-                window.chrome.webview.postMessage("LAUNCH_CS2");
-            }
-        }
-    </script>
 </body>
 </html>
